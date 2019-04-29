@@ -161,11 +161,11 @@ git_kernel () {
 	${git_bin} config --local --list | grep gc.auto >/dev/null 2>&1 || ${git_bin} config --local gc.auto 0
 
 	if [ ! "${git_config_user_email}" ] ; then
-		${git_bin} config --local user.email you@example.com
+		${git_bin} config --local user.email turmary@126.com
 	fi
 
 	if [ ! "${git_config_user_name}" ] ; then
-		${git_bin} config --local user.name "Your Name"
+		${git_bin} config --local user.name "Peter Yang"
 	fi
 
 	if [ "${RUN_BISECT}" ] ; then
@@ -295,13 +295,13 @@ echo "scripts/git: [`LC_ALL=C ${git_bin} --version`]"
 unset git_config_user_email
 git_config_user_email=$(${git_bin} config --global --get user.email || true)
 if [ ! "${git_config_user_email}" ] ; then
-	${git_bin} config --local user.email you@example.com
+	${git_bin} config --local user.email turmary@126.com
 fi
 
 unset git_config_user_name
 git_config_user_name=$(${git_bin} config --global --get user.name || true)
 if [ ! "${git_config_user_name}" ] ; then
-	${git_bin} config --local user.name "Your Name"
+	${git_bin} config --local user.name "Peter Yang"
 fi
 
 torvalds_linux="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
