@@ -34,7 +34,7 @@ git_bin=$(which git)
 
 git="${git_bin} am"
 #git_patchset="git://git.ti.com/ti-linux-kernel/ti-linux-kernel.git"
-git_patchset="https://github.com/RobertCNelson/ti-linux-kernel.git"
+git_patchset="https://github.com/Seeed-Studio/linux.git"
 #git_opts
 
 if [ "${RUN_BISECT}" ] ; then
@@ -98,17 +98,20 @@ cherrypick () {
 }
 
 external_git () {
-	git_tag="ti-linux-${KERNEL_REL}.y"
+	git_tag="$BRANCH"
 	echo "pulling: [${git_patchset} ${git_tag}]"
 	${git_bin} pull --no-edit ${git_patchset} ${git_tag}
 	top_of_branch=$(${git_bin} describe)
-	if [ ! "x${ti_git_post}" = "x" ] ; then
+	if [ ! "x${stm32mp1_git_post}" = "x" ] ; then
+		# Delete the exist branch to prevent checkout error
 		${git_bin} checkout master -f
 		test_for_branch=$(${git_bin} branch --list "v${KERNEL_TAG}${BUILD}")
 		if [ "x${test_for_branch}" != "x" ] ; then
 			${git_bin} branch "v${KERNEL_TAG}${BUILD}" -D
 		fi
-		${git_bin} checkout ${ti_git_post} -b v${KERNEL_TAG}${BUILD} -f
+
+		# Now checkout the target SHA as new branch
+		${git_bin} checkout ${stm32mp1_git_post} -b v${KERNEL_TAG}${BUILD} -f
 		current_git=$(${git_bin} describe)
 		echo "${current_git}"
 
@@ -310,10 +313,9 @@ local_patch () {
 }
 
 external_git
-aufs4
+#aufs4
 #rt
-wireguard
-ti_pm_firmware
+#ti_pm_firmware
 #local_patch
 
 pre_backports () {
@@ -482,11 +484,10 @@ beaglebone () {
 }
 
 ###
-backports
+# backports
 #reverts
-drivers
-soc
-beaglebone
+# drivers
+# soc
 
 packaging () {
 	echo "dir: packaging"
@@ -521,5 +522,5 @@ readme () {
 }
 
 packaging
-readme
+# readme
 echo "patch.sh ran successfully"

@@ -84,6 +84,10 @@ make_kernel () {
 	#address="LOADADDR=${ZRELADDR}"
 
 	cd "${DIR}/KERNEL" || exit
+
+	# No '+' behind kernelrelease
+	# echo > .scmversion
+
 	echo "-----------------------------"
 	echo "make -j${CORES} ARCH=${KERNEL_ARCH} LOCALVERSION=${BUILD} CROSS_COMPILE=\"${CC}\" ${address} ${image} modules"
 	echo "-----------------------------"

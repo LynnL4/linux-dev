@@ -2,11 +2,11 @@
 #
 ARCH=$(uname -m)
 
-config="omap2plus_defconfig"
+config="stm32_defconfig"
 
-build_prefix="-ti-r"
-branch_prefix="ti-linux-"
-branch_postfix=".y"
+build_prefix="-stm32-r"
+branch_prefix="stm32mp1-v"
+branch_postfix=".9"
 bborg_branch="4.19"
 
 #arm
@@ -36,7 +36,7 @@ KERNEL_REL=4.19
 KERNEL_TAG=${KERNEL_REL}.9
 kernel_rt=".8-rt6"
 #Kernel Build
-BUILD=${build_prefix}5
+BUILD=${build_prefix}1
 
 #v4.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
@@ -45,10 +45,9 @@ BUILD=${build_prefix}5
 #git branch
 BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
 
-DISTRO=xross
+DISTRO=
 DEBARCH=armhf
 
-ti_git_old_release="23c0c00c2f0b857d39bfe98aba7c85391dbd029f"
-        ti_git_pre="23c0c00c2f0b857d39bfe98aba7c85391dbd029f"
-       ti_git_post="c4fb94f22d680bec41f0f33202de3d1dbccade3b"
+stm32mp1_git_old_release="be53d23e68c29900da6b6ce486b5ab8507de94b1"
+       stm32mp1_git_post="0d6c2e1f6a4a46f8ce35c4c0df474dac7c41832e"
 #

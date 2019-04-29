@@ -196,9 +196,6 @@ Method: generic
 Machine: ARM Versatile PB
 Method: generic
 
-Machine: Arrow BeagleBone Black Industrial
-Method: generic
-
 Machine: Arrow Electronics, APQ8064 SD_600eval
 Method: generic
 
@@ -2023,9 +2020,6 @@ Method: generic
 Machine: Olimex A33-OLinuXino
 Method: generic
 
-Machine: Olimex AM335x SOM
-Method: generic
-
 Machine: Olimex sam9-l9260
 Method: generic
 
@@ -2627,6 +2621,24 @@ Machine: STMicroelectronics STM32H743i-Discovery board
 Method: generic
 
 Machine: STMicroelectronics STM32H743i-EVAL board
+Method: generic
+
+Machine: STMicroelectronics STM32MP157A-DK1 Discovery Board
+Method: generic
+
+Machine: STMicroelectronics STM32MP157C-DK2 configured to run Linux A7 examples
+Method: generic
+
+Machine: STMicroelectronics STM32MP157C-DK2 configured to run M4 examples
+Method: generic
+
+Machine: STMicroelectronics STM32MP157C-DK2 Discovery Board
+Method: generic
+
+Machine: STMicroelectronics STM32MP157C-EV1 configured to run Linux A7 examples
+Method: generic
+
+Machine: STMicroelectronics STM32MP157C-EV1 configured to run M4 examples
 Method: generic
 
 Machine: STMicroelectronics STM32MP157C eval daughter
