@@ -71,6 +71,19 @@ make_deb () {
 		deb_distro="unstable"
 	fi
 
+	if [ "x${KERNEL_ARCH}" = "xarm" ] ; then
+		image="zImage"
+	else
+		image="Image"
+	fi
+
+	unset address
+
+	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
+	##make sure to install your distro's version of mkimage
+	image="uImage"
+	address="LOADADDR=${ZRELADDR}"
+
 	build_opts="-j${CORES}"
 	build_opts="${build_opts} ARCH=${KERNEL_ARCH}"
 	build_opts="${build_opts} KBUILD_DEBARCH=${DEBARCH}"
@@ -80,6 +93,11 @@ make_deb () {
 	#Just use "linux-upstream"...
 	#https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/scripts/package/builddeb?id=3716001bcb7f5822382ac1f2f54226b87312cc6b
 	build_opts="${build_opts} KDEB_SOURCENAME=linux-upstream"
+
+	echo "-----------------------------"
+	echo "make ${build_opts} CROSS_COMPILE="${CC}" ${address} ${image}"
+	echo "-----------------------------"
+	make ${build_opts} CROSS_COMPILE="${CC}" ${address} ${image}
 
 	echo "-----------------------------"
 	echo "make ${build_opts} CROSS_COMPILE="${CC}" bindeb-pkg"
@@ -152,7 +170,7 @@ if [ ! "${CORES}" ] ; then
 fi
 
 #unset FULL_REBUILD
-FULL_REBUILD=1
+FULL_REBUILD=${FULL_REBUILD-1}
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 

@@ -1,23 +1,26 @@
-From 0de9996c857910cd10eef36ba905773bae0d08bb Mon Sep 17 00:00:00 2001
+From 6c6d4d993ad37ca7dc2f49854c98fe83ee1c9d3f Mon Sep 17 00:00:00 2001
 From: Robert Nelson <robertcnelson@gmail.com>
 Date: Fri, 14 Dec 2018 11:56:28 -0600
 Subject: [PATCH] packaging: sync builddeb changes
 
-Signed-off-by: Robert Nelson <robertcnelson@gmail.com>
 ---
- scripts/package/builddeb | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ scripts/package/builddeb | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/scripts/package/builddeb b/scripts/package/builddeb
-index 90c9a8ac7adb..b274b7994ac7 100755
+index 90c9a8ac7adb..9c5868b32c43 100755
 --- a/scripts/package/builddeb
 +++ b/scripts/package/builddeb
-@@ -81,12 +81,13 @@ else
+@@ -81,12 +81,17 @@ else
  	cp System.map "$tmpdir/boot/System.map-$version"
  	cp $KCONFIG_CONFIG "$tmpdir/boot/config-$version"
  fi
 -cp "$($MAKE -s image_name)" "$tmpdir/$installed_image_path"
 +cp "$($MAKE -s -f $srctree/Makefile image_name)" "$tmpdir/$installed_image_path"
++image_uimage="${objtree}/arch/$SRCARCH/boot/uImage"
++if [ -f "${image_uimage}" ]; then
++	cp "${image_uimage}" "$tmpdir/boot/uImage"
++fi
  
 -if grep -q "^CONFIG_OF=y" $KCONFIG_CONFIG ; then
 +if grep -q "^CONFIG_OF_EARLY_FLATTREE=y" $KCONFIG_CONFIG ; then
@@ -30,5 +33,5 @@ index 90c9a8ac7adb..b274b7994ac7 100755
  fi
  
 -- 
-2.19.2
+2.18.0
 

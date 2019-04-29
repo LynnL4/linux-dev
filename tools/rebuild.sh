@@ -74,8 +74,8 @@ make_kernel () {
 
 	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
 	##make sure to install your distro's version of mkimage
-	#image="uImage"
-	#address="LOADADDR=${ZRELADDR}"
+	image="uImage"
+	address="LOADADDR=${ZRELADDR}"
 
 	cd "${DIR}/KERNEL" || exit
 	echo "-----------------------------"

@@ -80,8 +80,8 @@ make_kernel () {
 
 	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
 	##make sure to install your distro's version of mkimage
-	#image="uImage"
-	#address="LOADADDR=${ZRELADDR}"
+	image="uImage"
+	address="LOADADDR=${ZRELADDR}"
 
 	cd "${DIR}/KERNEL" || exit
 
@@ -229,7 +229,7 @@ if [ ! "${CORES}" ] ; then
 fi
 
 #unset FULL_REBUILD
-FULL_REBUILD=1
+FULL_REBUILD=${FULL_REBUILD-1}
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 

@@ -9,6 +9,9 @@ branch_prefix="stm32mp1-v"
 branch_postfix=".9"
 bborg_branch="4.19"
 
+# stm32mp1 uImage required
+ZRELADDR="0xC2000040"
+
 #arm
 KERNEL_ARCH=arm
 #toolchain="gcc_linaro_eabi_4_8"
