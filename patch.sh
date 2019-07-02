@@ -430,7 +430,8 @@ beagleboard_dtbs () {
 
 local_patch () {
 	echo "dir: dir"
-	${git} "${DIR}/patches/dir/0001-patch.patch"
+	# ${git} "${DIR}/patches/dir/0001-patch.patch"
+	dir 'dir'
 }
 
 external_git
@@ -440,7 +441,7 @@ aufs
 wireguard
 ti_pm_firmware
 beagleboard_dtbs
-#local_patch
+local_patch
 
 pre_backports () {
 	echo "dir: backports/${subsystem}"
