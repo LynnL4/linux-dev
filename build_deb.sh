@@ -152,7 +152,7 @@ if [ ! "${CORES}" ] ; then
 fi
 
 #unset FULL_REBUILD
-FULL_REBUILD=1
+FULL_REBUILD=${FULL_REBUILD-1}
 if [ "${FULL_REBUILD}" ] ; then
 	/bin/sh -e "${DIR}/scripts/git.sh" || { exit 1 ; }
 

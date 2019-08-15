@@ -513,6 +513,7 @@ drivers () {
 	dir 'drivers/ti/serial'
 	dir 'drivers/ti/tsc'
 	dir 'drivers/ti/gpio'
+	dir 'drivers/ti/davinci'
 
 	#[PATCH v3 1/4] mfd: stmpe: Move ADC related defines to header of mfd
 	dir 'drivers/iio/stmpe'
