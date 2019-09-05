@@ -10,7 +10,7 @@ branch_postfix=".9"
 bborg_branch="4.19"
 
 # stm32mp1 uImage required
-ZRELADDR="0xC2000040"
+# ZRELADDR="0xC2000040"
 
 #arm
 KERNEL_ARCH=arm

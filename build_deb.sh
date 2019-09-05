@@ -81,8 +81,8 @@ make_deb () {
 
 	##uImage, if you really really want a uImage, zreladdr needs to be defined on the build line going forward...
 	##make sure to install your distro's version of mkimage
-	image="uImage"
-	address="LOADADDR=${ZRELADDR}"
+	# image="uImage"
+	# address="LOADADDR=${ZRELADDR}"
 
 	build_opts="-j${CORES}"
 	build_opts="${build_opts} ARCH=${KERNEL_ARCH}"
