@@ -1,0 +1,59 @@
+From a0ddc2f3b6a57d532050933e22bed0edf381b1e6 Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Fri, 30 Aug 2019 15:57:50 +0800
+Subject: [PATCH 11/14] Add: 8-bit eMMC/SDMMC2 OK, DATA7 move PD3 -> PC7
+
+---
+ arch/arm/boot/dts/stm32mp157-pinctrl.dtsi |  4 ++--
+ arch/arm/boot/dts/stm32mp157c-dk2.dts     | 13 +++++++++++++
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+index 4a647887d494..dac9a577dbfb 100644
+--- a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+@@ -1309,7 +1309,7 @@
+ 					pinmux = <STM32_PINMUX('A', 8, AF9)>, /* SDMMC2_D4 */
+ 						 <STM32_PINMUX('A', 9, AF10)>, /* SDMMC2_D5 */
+ 						 <STM32_PINMUX('E', 5, AF9)>, /* SDMMC2_D6 */
+-						 <STM32_PINMUX('D', 3, AF9)>; /* SDMMC2_D7 */
++						 <STM32_PINMUX('C', 7, AF10)>; /* SDMMC2_D7 */
+ 					slew-rate = <1>;
+ 					drive-push-pull;
+ 					bias-pull-up;
+@@ -1321,7 +1321,7 @@
+ 					pinmux = <STM32_PINMUX('A', 8, ANALOG)>, /* SDMMC2_D4 */
+ 						 <STM32_PINMUX('A', 9, ANALOG)>, /* SDMMC2_D5 */
+ 						 <STM32_PINMUX('E', 5, ANALOG)>, /* SDMMC2_D6 */
+-						 <STM32_PINMUX('D', 3, ANALOG)>; /* SDMMC2_D7 */
++						 <STM32_PINMUX('C', 7, ANALOG)>; /* SDMMC2_D7 */
+ 				};
+ 			};
+ 
+diff --git a/arch/arm/boot/dts/stm32mp157c-dk2.dts b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+index ce4b0bfc4a01..ce4e041136cc 100644
+--- a/arch/arm/boot/dts/stm32mp157c-dk2.dts
++++ b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+@@ -107,6 +107,19 @@
+ 	pinctrl-names = "default";
+ };
+ 
++&sdmmc2 {
++	pinctrl-names = "default", "opendrain", "sleep";
++	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_a>;
++	pinctrl-1 = <&sdmmc2_b4_od_pins_a &sdmmc2_d47_pins_a>;
++	pinctrl-2 = <&sdmmc2_b4_sleep_pins_a &sdmmc2_d47_sleep_pins_a>;
++	non-removable;
++	broken-cd;
++	st,neg-edge;
++	bus-width = <8>;
++	vmmc-supply = <&v3v3>;
++	status = "okay";
++};
++
+ /* Wifi */
+ &sdmmc3 {
+ 	/* arm,primecell-periphid = <0x10153180>; */
+-- 
+2.18.0
+

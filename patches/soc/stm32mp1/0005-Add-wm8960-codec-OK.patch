@@ -1,0 +1,234 @@
+From 3ada2257ed0b11ccc530765eb90720386e280484 Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Tue, 20 Aug 2019 15:17:58 +0800
+Subject: [PATCH 05/14] Add: wm8960 codec OK
+
+---
+ arch/arm/boot/dts/stm32mp157a-dk1.dts | 38 +++++++++++++--------------
+ sound/soc/codecs/wm8960.c             | 25 +++++++++++++-----
+ 2 files changed, 37 insertions(+), 26 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+index f51aecc8afaf..1d79569dbfbd 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+@@ -102,18 +102,16 @@
+ 		};
+ 	};
+ 
+-	/*
+ 	sound {
+ 		compatible = "audio-graph-card";
+-		label = "STM32MP1-DK";
++		label = "STM32MP1-SEEEDNPi";
+ 		routing =
+ 			"Playback" , "MCLK",
+ 			"Capture" , "MCLK",
+-			"MICL" , "Mic Bias";
+-		dais = <&sai2a_port &sai2b_port &i2s2_port>;
++			"LINPUT1" , "MICB";
++		dais = <&sai2a_port &sai2b_port /*&i2s2_port*/>;
+ 		status = "okay";
+ 	};
+-	*/
+ 
+ 	usb_phy_tuning: usb-phy-tuning {
+ 		st,hs-dc-level = <2>;
+@@ -201,7 +199,6 @@
+ 	status = "okay";
+ };
+ 
+-#if 0
+ &i2c1 {
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&i2c1_pins_a>;
+@@ -212,9 +209,9 @@
+ 	/delete-property/dmas;
+ 	/delete-property/dma-names;
+ 
+-	cs42l51: cs42l51@4a {
+-		compatible = "cirrus,cs42l51";
+-		reg = <0x4a>;
++	wm8960: wm8960@1a {
++		compatible = "wlf,wm8960";
++		reg = <0x1a>;
+ 		#sound-dai-cells = <0>;
+ 		status = "okay";
+ 
+@@ -228,18 +225,20 @@
+ 		clocks = <&sai2a>;
+ 		clock-names = "MCLK";
+ 
+-		cs42l51_port: port {
++		wlf,shared-lrclk;
++
++		wm8960_port: port {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 
+-			cs42l51_tx_endpoint: endpoint@0 {
++			wm8960_tx_endpoint: endpoint@0 {
+ 				reg = <0>;
+ 				remote-endpoint = <&sai2a_endpoint>;
+ 				frame-master;
+ 				bitclock-master;
+ 			};
+ 
+-			cs42l51_rx_endpoint: endpoint@1 {
++			wm8960_rx_endpoint: endpoint@1 {
+ 				reg = <1>;
+ 				remote-endpoint = <&sai2b_endpoint>;
+ 				frame-master;
+@@ -248,6 +247,7 @@
+ 		};
+ 	};
+ 
++	#if 0
+ 	hdmi-transmitter@39 {
+ 		compatible = "sil,sii9022";
+ 		reg = <0x39>;
+@@ -280,8 +280,8 @@
+ 			};
+ 		};
+ 	};
++	#endif
+ };
+-#endif
+ 
+ &i2c2 {
+ 	pinctrl-names = "default", "sleep";
+@@ -519,7 +519,6 @@
+ 	status = "okay";
+ };
+ 
+-#if 0
+ &sai2 {
+ 	clocks = <&rcc SAI2>, <&rcc PLL3_Q>, <&rcc PLL3_R>;
+ 	clock-names = "pclk", "x8k", "x11k";
+@@ -537,11 +536,11 @@
+ 
+ 		sai2a_port: port {
+ 			sai2a_endpoint: endpoint {
+-				remote-endpoint = <&cs42l51_tx_endpoint>;
++				remote-endpoint = <&wm8960_tx_endpoint>;
+ 				format = "i2s";
+ 				mclk-fs = <256>;
+ 				dai-tdm-slot-num = <2>;
+-				dai-tdm-slot-width = <32>;
++				dai-tdm-slot-width = <0>;	/* 0 = AUTO-WIDTH */
+ 			};
+ 		};
+ 	};
+@@ -549,22 +548,21 @@
+ 	sai2b: audio-controller@4400b024 {
+ 		dma-names = "rx";
+ 		st,sync = <&sai2a 2>;
+-		status = "okay";
+ 		clocks = <&rcc SAI2_K>, <&sai2a>;
+ 		clock-names = "sai_ck", "MCLK";
++		status = "okay";
+ 
+ 		sai2b_port: port {
+ 			sai2b_endpoint: endpoint {
+-				remote-endpoint = <&cs42l51_rx_endpoint>;
++				remote-endpoint = <&wm8960_rx_endpoint>;
+ 				format = "i2s";
+ 				mclk-fs = <256>;
+ 				dai-tdm-slot-num = <2>;
+-				dai-tdm-slot-width = <32>;
++				dai-tdm-slot-width = <0>;	/* 0 = AUTO-WIDTH */
+ 			};
+ 		};
+ 	};
+ };
+-#endif
+ 
+ &sdmmc1 {
+ 	pinctrl-names = "default", "opendrain", "sleep";
+diff --git a/sound/soc/codecs/wm8960.c b/sound/soc/codecs/wm8960.c
+index 8dc1f3d6a988..e93d0dd8a9f8 100644
+--- a/sound/soc/codecs/wm8960.c
++++ b/sound/soc/codecs/wm8960.c
+@@ -28,6 +28,11 @@
+ 
+ #include "wm8960.h"
+ 
++#ifdef DEBUG
++#undef pr_fmt
++#define pr_fmt(fmt)     KBUILD_MODNAME ": %s:%d: " fmt, __func__, __LINE__
++#endif
++
+ /* R25 - Power 1 */
+ #define WM8960_VMID_MASK 0x180
+ #define WM8960_VREF      0x40
+@@ -66,7 +71,7 @@ static const struct reg_default wm8960_reg_defaults[] = {
+ 	{  0x6, 0x0000 },
+ 	{  0x7, 0x000a },
+ 	{  0x8, 0x01c0 },
+-	{  0x9, 0x0000 },
++	{  0x9, 0x0040 }, /* ADCLRC/GPIO1 as GPIO pin */
+ 	{  0xa, 0x00ff },
+ 	{  0xb, 0x00ff },
+ 
+@@ -355,6 +360,8 @@ SND_SOC_DAPM_INPUT("RINPUT3"),
+ 
+ SND_SOC_DAPM_SUPPLY("MICB", WM8960_POWER1, 1, 0, NULL, 0),
+ 
++SND_SOC_DAPM_CLOCK_SUPPLY("MCLK"),
++
+ SND_SOC_DAPM_MIXER("Left Boost Mixer", WM8960_POWER1, 5, 0,
+ 		   wm8960_lin_boost, ARRAY_SIZE(wm8960_lin_boost)),
+ SND_SOC_DAPM_MIXER("Right Boost Mixer", WM8960_POWER1, 4, 0,
+@@ -1326,14 +1333,19 @@ static const struct snd_soc_dai_ops wm8960_dai_ops = {
+ 	.set_sysclk = wm8960_set_dai_sysclk,
+ };
+ 
+-static struct snd_soc_dai_driver wm8960_dai = {
+-	.name = "wm8960-hifi",
++static struct snd_soc_dai_driver wm8960_dai[] = {
++	{
++	.name = "wm8960-hifi0",
+ 	.playback = {
+ 		.stream_name = "Playback",
+ 		.channels_min = 1,
+ 		.channels_max = 2,
+ 		.rates = WM8960_RATES,
+ 		.formats = WM8960_FORMATS,},
++	.ops = &wm8960_dai_ops,
++	},
++	{
++	.name = "wm8960-hifi1",
+ 	.capture = {
+ 		.stream_name = "Capture",
+ 		.channels_min = 1,
+@@ -1341,7 +1353,8 @@ static struct snd_soc_dai_driver wm8960_dai = {
+ 		.rates = WM8960_RATES,
+ 		.formats = WM8960_FORMATS,},
+ 	.ops = &wm8960_dai_ops,
+-	.symmetric_rates = 1,
++	}
++	/* .symmetric_rates = 1, */
+ };
+ 
+ static int wm8960_probe(struct snd_soc_component *component)
+@@ -1407,7 +1420,7 @@ static int wm8960_i2c_probe(struct i2c_client *i2c,
+ 	if (wm8960 == NULL)
+ 		return -ENOMEM;
+ 
+-	wm8960->mclk = devm_clk_get(&i2c->dev, "mclk");
++	wm8960->mclk = devm_clk_get(&i2c->dev, "MCLK");
+ 	if (IS_ERR(wm8960->mclk)) {
+ 		if (PTR_ERR(wm8960->mclk) == -EPROBE_DEFER)
+ 			return -EPROBE_DEFER;
+@@ -1453,7 +1466,7 @@ static int wm8960_i2c_probe(struct i2c_client *i2c,
+ 	i2c_set_clientdata(i2c, wm8960);
+ 
+ 	ret = devm_snd_soc_register_component(&i2c->dev,
+-			&soc_component_dev_wm8960, &wm8960_dai, 1);
++			&soc_component_dev_wm8960, wm8960_dai, ARRAY_SIZE(wm8960_dai));
+ 
+ 	return ret;
+ }
+-- 
+2.18.0
+

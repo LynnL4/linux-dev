@@ -1,0 +1,282 @@
+From 164d6d22f0bb7857cf8d217e4e5d58a5c24ff953 Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Fri, 30 Aug 2019 10:31:04 +0800
+Subject: [PATCH 10/14] Add: WiFi/BT BCM43430a0 OK
+
+---
+ arch/arm/boot/dts/stm32mp157-pinctrl.dtsi     | 70 ++++++++++++++++---
+ arch/arm/boot/dts/stm32mp157c-dk2.dts         | 40 +++++++----
+ arch/arm/boot/dts/stm32mp157c.dtsi            | 30 ++++----
+ .../broadcom/brcm80211/brcmfmac/sdio.c        |  5 ++
+ 4 files changed, 108 insertions(+), 37 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+index 55d94671fc8f..4a647887d494 100644
+--- a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+@@ -1329,7 +1329,7 @@
+ 				pins1 {
+ 					pinmux = <STM32_PINMUX('F', 0, AF9)>, /* SDMMC3_D0 */
+ 						 <STM32_PINMUX('F', 4, AF9)>, /* SDMMC3_D1 */
+-						 <STM32_PINMUX('F', 5, AF9)>, /* SDMMC3_D2 */
++						 <STM32_PINMUX('D', 5, AF10)>, /* SDMMC3_D2 */
+ 						 <STM32_PINMUX('D', 7, AF10)>, /* SDMMC3_D3 */
+ 						 <STM32_PINMUX('F', 1, AF9)>; /* SDMMC3_CMD */
+ 					slew-rate = <1>;
+@@ -1337,7 +1337,7 @@
+ 					bias-pull-up;
+ 				};
+ 				pins2 {
+-					pinmux = <STM32_PINMUX('G', 15, AF10)>; /* SDMMC3_CK */
++					pinmux = <STM32_PINMUX('G', 15, AF10)>; /* SDMMC3_CLK */
+ 					slew-rate = <2>;
+ 					drive-push-pull;
+ 					bias-pull-up;
+@@ -1348,14 +1348,14 @@
+ 				pins1 {
+ 					pinmux = <STM32_PINMUX('F', 0, AF9)>, /* SDMMC3_D0 */
+ 						 <STM32_PINMUX('F', 4, AF9)>, /* SDMMC3_D1 */
+-						 <STM32_PINMUX('F', 5, AF9)>, /* SDMMC3_D2 */
++						 <STM32_PINMUX('D', 5, AF10)>, /* SDMMC3_D2 */
+ 						 <STM32_PINMUX('D', 7, AF10)>; /* SDMMC3_D3 */
+ 					slew-rate = <1>;
+ 					drive-push-pull;
+ 					bias-pull-up;
+ 				};
+ 				pins2 {
+-					pinmux = <STM32_PINMUX('G', 15, AF10)>; /* SDMMC3_CK */
++					pinmux = <STM32_PINMUX('G', 15, AF10)>; /* SDMMC3_CLK */
+ 					slew-rate = <2>;
+ 					drive-push-pull;
+ 					bias-pull-up;
+@@ -1618,6 +1618,32 @@
+ 						 <STM32_PINMUX('A', 12, ANALOG)>; /* OTG_FS_DP */
+ 				};
+ 			};
++
++			btreg: bt_reg_on-0 {
++				reset_gpio {
++					pinmux = <STM32_PINMUX('H', 9, GPIO)>;
++					drive-push-pull;
++					bias-pull-up;
++					output-high;
++					slew-rate = <0>;
++				};
++
++				wake_gpio {
++					pinmux = <STM32_PINMUX('H', 8, GPIO)>;
++					drive-push-pull;
++					bias-pull-up;
++					output-high;
++					slew-rate = <0>;
++				};
++
++				wake_host_gpio {
++					pinmux = <STM32_PINMUX('H', 3, GPIO)>;
++					drive-push-pull;
++					bias-pull-up;
++					output-high;
++					slew-rate = <0>;
++				};
++			};
+ 		};
+ 
+ 		pinctrl_z: pin-controller-z@54004000 {
+@@ -1642,14 +1668,40 @@
+ 				status = "disabled";
+ 			};
+ 
+-			btreg: bt_reg_on-0 {
+-				pins {
+-					pinmux = <STM32_PINMUX('Z', 6, GPIO)>;
++			usart1_pins_a: usart1-0 {
++				pins1 {
++					pinmux = <STM32_PINMUX('Z', 7, AF7)>, /* USART1_TX */
++						 <STM32_PINMUX('Z', 5, AF7)>; /* USART1_RTS */
++					bias-disable;
+ 					drive-push-pull;
+-					bias-pull-up;
+-					output-high;
+ 					slew-rate = <0>;
+ 				};
++				pins2 {
++					pinmux = <STM32_PINMUX('Z', 6, AF7)>, /* USART1_RX */
++						 <STM32_PINMUX('Z', 3, AF7)>; /* USART1_CTS_NSS */
++					bias-disable;
++				};
++			};
++
++			usart1_idle_pins_a: usart1-idle-0 {
++				pins1 {
++					pinmux = <STM32_PINMUX('Z', 7, ANALOG)>, /* USART1_TX */
++						 <STM32_PINMUX('Z', 5, ANALOG)>, /* USART1_RTS */
++						 <STM32_PINMUX('Z', 3, ANALOG)>; /* USART1_CTS_NSS */
++				};
++				pins2 {
++					pinmux = <STM32_PINMUX('Z', 6, AF7)>; /* USART1_RX */
++					bias-disable;
++				};
++			};
++
++			usart1_sleep_pins_a: usart1-sleep-0 {
++				pins {
++					pinmux = <STM32_PINMUX('Z', 7, ANALOG)>, /* USART1_TX */
++						 <STM32_PINMUX('Z', 5, ANALOG)>, /* USART1_RTS */
++						 <STM32_PINMUX('Z', 6, ANALOG)>, /* USART1_RX */
++						 <STM32_PINMUX('Z', 3, ANALOG)>; /* USART1_CTS_NSS */
++				};
+ 			};
+ 
+ 			spi1_pins_a: spi1-0 {
+diff --git a/arch/arm/boot/dts/stm32mp157c-dk2.dts b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+index 9790c6abb245..ce4b0bfc4a01 100644
+--- a/arch/arm/boot/dts/stm32mp157c-dk2.dts
++++ b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+@@ -14,12 +14,15 @@
+ 	compatible = "st,stm32mp157c-dk2", "st,stm32mp157";
+ 
+ 	aliases {
+-		serial3 = &usart2;
++		serial3 = &usart1;
++		mmc0    = &sdmmc1;
++		mmc1    = &sdmmc2;
++		mmc2    = &sdmmc3;
+ 	};
+ 
+ 	wifi_pwrseq: wifi-pwrseq {
+ 		compatible = "mmc-pwrseq-simple";
+-		reset-gpios = <&gpioz 0 GPIO_ACTIVE_LOW>;
++		reset-gpios = <&gpiod 9 GPIO_ACTIVE_LOW>;
+ 	};
+ };
+ 
+@@ -105,35 +108,46 @@
+ };
+ 
+ /* Wifi */
+-&sdmmc2 {
+-	arm,primecell-periphid = <0x10153180>;
++&sdmmc3 {
++	/* arm,primecell-periphid = <0x10153180>; */
+ 	pinctrl-names = "default", "opendrain", "sleep";
+-	pinctrl-0 = <&sdmmc2_b4_pins_b>;
+-	pinctrl-1 = <&sdmmc2_b4_od_pins_b>;
+-	pinctrl-2 = <&sdmmc2_b4_sleep_pins_a>;
++	pinctrl-0 = <&sdmmc3_b4_pins_a>;
++	pinctrl-1 = <&sdmmc3_b4_od_pins_a>;
++	pinctrl-2 = <&sdmmc3_b4_sleep_pins_a>;
+ 	non-removable;
++	broken-cd;
+ 	st,neg-edge;
++	st,sig-dir;
++
+ 	bus-width = <4>;
+ 	vmmc-supply = <&v3v3>;
+ 	mmc-pwrseq = <&wifi_pwrseq>;
+ 	#address-cells = <1>;
+ 	#size-cells = <0>;
+ 	keep-power-in-suspend;
++	supports-sdio;
++	sd-uhs-sdr104;
+ 	status = "okay";
+ 
+ 	brcmf: bcrmf@1 {
+ 		reg = <1>;
+ 		compatible = "brcm,bcm4329-fmac";
++		brcm,sd-head-align    = <32>;
++		brcm,sd-sgentry-align = <32>;
++		/*
++		interrupt-parent = <&gpiog>;
++		interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
++		interrupt-names = "host-wake";
++		*/
+ 	};
+ };
+ 
+ /* Bluetooth */
+-#if 0
+-&usart2 {
++&usart1 {
+ 	pinctrl-names = "default", "sleep", "idle";
+-	pinctrl-0 = <&usart2_pins_a>;
+-	pinctrl-1 = <&usart2_sleep_pins_a>;
+-	pinctrl-2 = <&usart2_idle_pins_a>;
++	pinctrl-0 = <&usart1_pins_a>;
++	pinctrl-1 = <&usart1_sleep_pins_a>;
++	pinctrl-2 = <&usart1_idle_pins_a>;
+ 	st,hw-flow-ctrl;
+ 	status = "okay";
+ 
+@@ -144,4 +158,4 @@
+ 		max-speed = <3000000>;
+ 	};
+ };
+-#endif
++
+diff --git a/arch/arm/boot/dts/stm32mp157c.dtsi b/arch/arm/boot/dts/stm32mp157c.dtsi
+index 5581a1cdbc5e..a655fb26cc72 100644
+--- a/arch/arm/boot/dts/stm32mp157c.dtsi
++++ b/arch/arm/boot/dts/stm32mp157c.dtsi
+@@ -1206,21 +1206,6 @@
+ 			};
+ 		};
+ 
+-		sdmmc3: sdmmc@48004000 {
+-			compatible = "arm,pl18x", "arm,primecell";
+-			arm,primecell-periphid = <0x00253180>;
+-			reg = <0x48004000 0x400>, <0x48005000 0x400>;
+-			interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>;
+-			interrupt-names = "cmd_irq";
+-			clocks = <&rcc SDMMC3_K>;
+-			clock-names = "apb_pclk";
+-			resets = <&rcc SDMMC3_R>;
+-			cap-sd-highspeed;
+-			cap-mmc-highspeed;
+-			max-frequency = <120000000>;
+-			status = "disabled";
+-		};
+-
+ 		usbotg_hs: usb-otg@49000000 {
+ 			compatible = "st,stm32mp1-hsotg", "snps,dwc2";
+ 			reg = <0x49000000 0x10000>;
+@@ -1723,6 +1708,21 @@
+ 			status = "disabled";
+ 		};
+ 
++		sdmmc3: sdmmc@48004000 {
++			compatible = "arm,pl18x", "arm,primecell";
++			arm,primecell-periphid = <0x00253180>;
++			reg = <0x48004000 0x400>, <0x48005000 0x400>;
++			interrupts = <GIC_SPI 137 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "cmd_irq";
++			clocks = <&rcc SDMMC3_K>;
++			clock-names = "apb_pclk";
++			resets = <&rcc SDMMC3_R>;
++			cap-sd-highspeed;
++			cap-mmc-highspeed;
++			max-frequency = <120000000>;
++			status = "disabled";
++		};
++
+ 		crc1: crc@58009000 {
+ 			compatible = "st,stm32f7-crc";
+ 			reg = <0x58009000 0x400>;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+index a907d7b065fa..b7be5ed3965e 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
+@@ -548,6 +548,11 @@ static const uint max_roundup = 512;
+ #define ALIGNMENT  4
+ #endif
+ 
++#ifdef CONFIG_MACH_STM32MP157
++#undef ALIGNMENT
++#define ALIGNMENT  32
++#endif
++
+ enum brcmf_sdio_frmtype {
+ 	BRCMF_SDIO_FT_NORMAL,
+ 	BRCMF_SDIO_FT_SUPER,
+-- 
+2.18.0
+

@@ -1,0 +1,63 @@
+From cd6bbdfd461b9a589e4c3a37fd99bff946bc74c2 Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Thu, 15 Aug 2019 10:43:35 +0800
+Subject: [PATCH 03/14] Add: ksz9031 works with a CLK125_EN pullup
+
+---
+ arch/arm/boot/dts/stm32mp157a-dk1.dts |  4 ++--
+ drivers/net/phy/micrel.c              | 17 +++++++++++++++++
+ 2 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+index fb25d501bb01..f51aecc8afaf 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+@@ -190,8 +190,8 @@
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 		compatible = "snps,dwmac-mdio";
+-		phy0: ethernet-phy@0 {
+-			reg = <0>;
++		phy0: ethernet-phy@7 {
++			reg = <7>;
+ 		};
+ 	};
+ };
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 3db06b40580d..c6f4a19805ee 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -68,6 +68,7 @@
+ #define MII_KSZPHY_EXTREG_READ                  0x0d
+ 
+ /* Extended registers */
++#define MII_KSZPHY_COMN_CONTROL                 0x100
+ #define MII_KSZPHY_CLK_CONTROL_PAD_SKEW         0x104
+ #define MII_KSZPHY_RX_DATA_PAD_SKEW             0x105
+ #define MII_KSZPHY_TX_DATA_PAD_SKEW             0x106
+@@ -547,6 +548,22 @@ static int ksz9031_config_init(struct phy_device *phydev)
+ 	if (result < 0)
+ 		return result;
+ 
++	/*
++	 * CLK125_EN = True
++	 *
++	 * Invalid software setting, CLK125_EN pin (hardware) must have a pullup.
++	 */
++	#if 0
++	{
++	int v, reg;
++
++	reg = MII_KSZPHY_COMN_CONTROL;
++	v = kszphy_extended_read(phydev, reg);
++	v |= 0x2;
++	kszphy_extended_write(phydev, reg, v);
++	}
++	#endif
++
+ 	/* The Micrel driver has a deprecated option to place phy OF
+ 	 * properties in the MAC node. Walk up the tree of devices to
+ 	 * find a device with an OF node.
+-- 
+2.18.0
+

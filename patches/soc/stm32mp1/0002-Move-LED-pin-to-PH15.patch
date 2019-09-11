@@ -1,0 +1,25 @@
+From bc891efc9c8b923c13fea25cdc91f1caf6e71854 Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Fri, 9 Aug 2019 17:48:40 +0800
+Subject: [PATCH 02/14] Move: LED pin to PH15
+
+---
+ arch/arm/boot/dts/stm32mp157a-dk1.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+index 9ed39077f416..fb25d501bb01 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+@@ -96,7 +96,7 @@
+ 		compatible = "gpio-leds";
+ 		blue {
+ 			label = "heartbeat";
+-			gpios = <&gpiod 11 GPIO_ACTIVE_HIGH>;
++			gpios = <&gpioh 15 GPIO_ACTIVE_HIGH>;
+ 			linux,default-trigger = "heartbeat";
+ 			default-state = "off";
+ 		};
+-- 
+2.18.0
+

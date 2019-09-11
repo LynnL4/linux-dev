@@ -1,0 +1,41 @@
+From ed096115b1ee8893e272486eeabd45cb11150eea Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Mon, 26 Aug 2019 15:36:57 +0800
+Subject: [PATCH 07/14] Add: USBH_EHCI second port OK
+
+---
+ arch/arm/boot/dts/stm32mp157a-dk1.dts | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+index 266d5d525c34..3f0ae053e8e0 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+@@ -729,16 +729,22 @@
+ };
+ 
+ &usbh_ehci {
+-	phys = <&usbphyc_port0>;
+-	phy-names = "usb";
++	phys = <&usbphyc_port0>, <&usbphyc_port1 1>;
++	phy-names = "usb", "usb2";
+ 	status = "okay";
+ };
+ 
+ &usbotg_hs {
++	compatible = "st,stm32mp1-fsotg", "snps,dwc2";                    /* Use full-speed integrated PHY */
++	pinctrl-names = "default";
++	pinctrl-0 = <&usbotg_hs_pins_a &usbotg_fs_dp_dm_pins_a>;          /* configure OTG ID and full-speed data pins */
++	vbus-supply = <&vbus_otg>;                                        /* voltage regulator to supply Vbus */
+ 	dr_mode = "peripheral";
+ 	force-b-session-valid;
++	/*
+ 	phys = <&usbphyc_port1 0>;
+ 	phy-names = "usb2-phy";
++	*/
+ 	status = "okay";
+ };
+ 
+-- 
+2.18.0
+

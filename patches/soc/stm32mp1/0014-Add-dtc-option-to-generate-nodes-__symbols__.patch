@@ -1,0 +1,24 @@
+From 2bada4dab40eae7a0839e209051b19e60988cbca Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Thu, 5 Sep 2019 14:55:38 +0800
+Subject: [PATCH 14/14] Add: dtc -@ option to generate nodes /__symbols__
+
+---
+ arch/arm/boot/dts/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index 566529092366..0995b84ccf54 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -1213,3 +1213,7 @@ dtb-$(CONFIG_ARCH_ASPEED) += \
+ 	aspeed-bmc-opp-zaius.dtb \
+ 	aspeed-bmc-portwell-neptune.dtb \
+ 	aspeed-bmc-quanta-q71l.dtb
++
++# Enable fixups to support overlays (/__symbols__)
++DTC_FLAGS ?= -@
++
+-- 
+2.18.0
+

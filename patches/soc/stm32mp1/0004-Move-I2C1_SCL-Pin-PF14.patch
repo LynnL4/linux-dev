@@ -1,0 +1,34 @@
+From c964f7018cf64c821300b1065cfc084f62c663c8 Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Tue, 20 Aug 2019 15:15:00 +0800
+Subject: [PATCH 04/14] Move: I2C1_SCL -> Pin PF14
+
+---
+ arch/arm/boot/dts/stm32mp157-pinctrl.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+index 6e4e5c923f2a..fa1febe5423c 100644
+--- a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+@@ -614,7 +614,7 @@
+ 
+ 			i2c1_pins_a: i2c1-0 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('D', 12, AF5)>, /* I2C1_SCL */
++					pinmux = <STM32_PINMUX('F', 14, AF5)>, /* I2C1_SCL */
+ 						 <STM32_PINMUX('F', 15, AF5)>; /* I2C1_SDA */
+ 					bias-disable;
+ 					drive-open-drain;
+@@ -624,7 +624,7 @@
+ 
+ 			i2c1_pins_sleep_a: i2c1-1 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('D', 12, ANALOG)>, /* I2C1_SCL */
++					pinmux = <STM32_PINMUX('F', 14, ANALOG)>, /* I2C1_SCL */
+ 						 <STM32_PINMUX('F', 15, ANALOG)>; /* I2C1_SDA */
+ 				};
+ 			};
+-- 
+2.18.0
+

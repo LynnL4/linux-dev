@@ -1,0 +1,219 @@
+From d5a5efab04a978a4771ee4cd580248aeea44b6fd Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Fri, 23 Aug 2019 15:34:03 +0800
+Subject: [PATCH 06/14] Add: OV5640 camera OK
+
+---
+ arch/arm/boot/dts/stm32mp157-pinctrl.dtsi | 45 ++++++++------------
+ arch/arm/boot/dts/stm32mp157a-dk1.dts     | 51 +++++++++++++++++++++++
+ arch/arm/boot/dts/stm32mp157c-dk2.dts     |  4 +-
+ drivers/pinctrl/stm32/pinctrl-stm32.c     |  3 +-
+ 4 files changed, 74 insertions(+), 29 deletions(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+index fa1febe5423c..2872ad7c28b5 100644
+--- a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+@@ -155,7 +155,7 @@
+ 
+ 			adc12_usb_pwr_pins_a: adc12-usb-pwr-pins-0 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('A', 4, ANALOG)>, /* ADC12 in18 */
++					pinmux = /*<STM32_PINMUX('A', 4, ANALOG)>,  ADC12 in18 */
+ 						 <STM32_PINMUX('A', 5, ANALOG)>; /* ADC12 in19 */
+ 				};
+ 			};
+@@ -204,42 +204,35 @@
+ 
+ 			dcmi_pins_a: dcmi-0 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('H', 8,  AF13)>,/* DCMI_HSYNC */
++					pinmux = <STM32_PINMUX('A', 4,  AF13)>,/* DCMI_HSYNC */
+ 						 <STM32_PINMUX('B', 7,  AF13)>,/* DCMI_VSYNC */
+ 						 <STM32_PINMUX('A', 6,  AF13)>,/* DCMI_PIXCLK */
+-						 <STM32_PINMUX('H', 9,  AF13)>,/* DCMI_D0 */
++						 <STM32_PINMUX('C', 6,  AF13)>,/* DCMI_D0 */
+ 						 <STM32_PINMUX('H', 10, AF13)>,/* DCMI_D1 */
+ 						 <STM32_PINMUX('H', 11, AF13)>,/* DCMI_D2 */
+-						 <STM32_PINMUX('H', 12, AF13)>,/* DCMI_D3 */
+-						 <STM32_PINMUX('H', 14, AF13)>,/* DCMI_D4 */
+-						 <STM32_PINMUX('I', 4,  AF13)>,/* DCMI_D5 */
+-						 <STM32_PINMUX('B', 8,  AF13)>,/* DCMI_D6 */
+-						 <STM32_PINMUX('E', 6,  AF13)>,/* DCMI_D7 */
+-						 <STM32_PINMUX('I', 1,  AF13)>,/* DCMI_D8 */
+-						 <STM32_PINMUX('H', 7,  AF13)>,/* DCMI_D9 */
+-						 <STM32_PINMUX('I', 3,  AF13)>,/* DCMI_D10 */
+-						 <STM32_PINMUX('H', 15, AF13)>;/* DCMI_D11 */
++						 <STM32_PINMUX('E', 1,  AF13)>,/* DCMI_D3 */
++						 <STM32_PINMUX('E', 11, AF13)>,/* DCMI_D4 */
++						 <STM32_PINMUX('D', 3,  AF13)>,/* DCMI_D5 */
++						 <STM32_PINMUX('E', 13, AF13)>,/* DCMI_D6 */
++						 <STM32_PINMUX('B', 9,  AF13)>;/* DCMI_D7 */
+ 					bias-disable;
+ 				};
+ 			};
+ 
+ 			dcmi_sleep_pins_a: dcmi-sleep-0 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('H', 8,  ANALOG)>,/* DCMI_HSYNC */
++					pinmux = <STM32_PINMUX('A', 4,  ANALOG)>,/* DCMI_HSYNC */
+ 						 <STM32_PINMUX('B', 7,  ANALOG)>,/* DCMI_VSYNC */
+ 						 <STM32_PINMUX('A', 6,  ANALOG)>,/* DCMI_PIXCLK */
+-						 <STM32_PINMUX('H', 9,  ANALOG)>,/* DCMI_D0 */
++						 <STM32_PINMUX('C', 6,  ANALOG)>,/* DCMI_D0 */
+ 						 <STM32_PINMUX('H', 10, ANALOG)>,/* DCMI_D1 */
+ 						 <STM32_PINMUX('H', 11, ANALOG)>,/* DCMI_D2 */
+-						 <STM32_PINMUX('H', 12, ANALOG)>,/* DCMI_D3 */
+-						 <STM32_PINMUX('H', 14, ANALOG)>,/* DCMI_D4 */
+-						 <STM32_PINMUX('I', 4,  ANALOG)>,/* DCMI_D5 */
+-						 <STM32_PINMUX('B', 8,  ANALOG)>,/* DCMI_D6 */
+-						 <STM32_PINMUX('E', 6,  ANALOG)>,/* DCMI_D7 */
+-						 <STM32_PINMUX('I', 1,  ANALOG)>,/* DCMI_D8 */
+-						 <STM32_PINMUX('H', 7,  ANALOG)>,/* DCMI_D9 */
+-						 <STM32_PINMUX('I', 3,  ANALOG)>,/* DCMI_D10 */
+-						 <STM32_PINMUX('H', 15, ANALOG)>;/* DCMI_D11 */
++						 <STM32_PINMUX('E', 1,  ANALOG)>,/* DCMI_D3 */
++						 <STM32_PINMUX('E', 11, ANALOG)>,/* DCMI_D4 */
++						 <STM32_PINMUX('D', 3,  ANALOG)>,/* DCMI_D5 */
++						 <STM32_PINMUX('E', 13, ANALOG)>,/* DCMI_D6 */
++						 <STM32_PINMUX('B', 9,  ANALOG)>;/* DCMI_D7 */
++					bias-disable;
+ 				};
+ 			};
+ 
+@@ -1642,8 +1635,7 @@
+ 
+ 			i2c4_pins_a: i2c4-0 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('Z', 4, AF6)>, /* I2C4_SCL */
+-						 <STM32_PINMUX('Z', 5, AF6)>; /* I2C4_SDA */
++					pinmux = <STM32_PINMUX('Z', 5, AF6)>; /* I2C4_SDA */
+ 					bias-disable;
+ 					drive-open-drain;
+ 					slew-rate = <0>;
+@@ -1652,8 +1644,7 @@
+ 
+ 			i2c4_pins_sleep_a: i2c4-1 {
+ 				pins {
+-					pinmux = <STM32_PINMUX('Z', 4, ANALOG)>, /* I2C4_SCL */
+-						 <STM32_PINMUX('Z', 5, ANALOG)>; /* I2C4_SDA */
++					pinmux = <STM32_PINMUX('Z', 5, ANALOG)>; /* I2C4_SDA */
+ 				};
+ 			};
+ 
+diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+index 1d79569dbfbd..266d5d525c34 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+@@ -92,6 +92,14 @@
+ 		};
+ 	};
+ 
++	clocks {
++		clk_ext_camera: clk-ext-camera {
++			#clock-cells = <0>;
++			compatible = "fixed-clock";
++			clock-frequency = <24000000>;
++		};
++	};
++
+ 	led {
+ 		compatible = "gpio-leds";
+ 		blue {
+@@ -450,6 +458,30 @@
+ 			status = "disabled";
+ 		};
+ 	};
++
++	ov5640: camera@3c {
++		compatible = "ovti,ov5640";
++		reg = <0x3c>;
++		clocks = <&clk_ext_camera>;
++		clock-names = "xclk";
++		DOVDD-supply = <&v3v3_hdmi>;
++		powerdown-gpios = <&gpioe 12 GPIO_ACTIVE_HIGH>;
++		reset-gpios     = <&gpioz  4  GPIO_ACTIVE_LOW>;
++		rotation = <180>;
++		status = "okay";
++
++		port {
++			ov5640_0: endpoint {
++				remote-endpoint = <&dcmi_0>;
++				bus-width = <8>;
++				data-shift = <0>; /* lines 7:0 are used */
++				hsync-active = <0>;
++				vsync-active = <0>;
++				pclk-sample = <1>;
++				pclk-max-frequency = <77000000>;
++			};
++		};
++	};
+ };
+ 
+ /*
+@@ -729,3 +761,22 @@
+ 	vdda-supply = <&vdd>;
+ 	status = "okay";
+ };
++
++&dcmi {
++	status = "okay";
++	pinctrl-names = "default", "sleep";
++	pinctrl-0 = <&dcmi_pins_a>;
++	pinctrl-1 = <&dcmi_sleep_pins_a>;
++
++	port {
++		dcmi_0: endpoint {
++			remote-endpoint = <&ov5640_0>;
++			bus-width = <8>;
++			hsync-active = <0>;
++			vsync-active = <0>;
++			pclk-sample = <1>;
++			pclk-max-frequency = <77000000>;
++		};
++	};
++};
++
+diff --git a/arch/arm/boot/dts/stm32mp157c-dk2.dts b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+index 20a86f1b9abc..9790c6abb245 100644
+--- a/arch/arm/boot/dts/stm32mp157c-dk2.dts
++++ b/arch/arm/boot/dts/stm32mp157c-dk2.dts
+@@ -19,7 +19,7 @@
+ 
+ 	wifi_pwrseq: wifi-pwrseq {
+ 		compatible = "mmc-pwrseq-simple";
+-		reset-gpios = <&gpioh 4 GPIO_ACTIVE_LOW>;
++		reset-gpios = <&gpioz 0 GPIO_ACTIVE_LOW>;
+ 	};
+ };
+ 
+@@ -128,6 +128,7 @@
+ };
+ 
+ /* Bluetooth */
++#if 0
+ &usart2 {
+ 	pinctrl-names = "default", "sleep", "idle";
+ 	pinctrl-0 = <&usart2_pins_a>;
+@@ -143,3 +144,4 @@
+ 		max-speed = <3000000>;
+ 	};
+ };
++#endif
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index 7a27431d491d..a6ab8f82003e 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -541,7 +541,8 @@ static int stm32_pctrl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
+ 		func = STM32_GET_PIN_FUNC(pinfunc);
+ 
+ 		if (!stm32_pctrl_is_function_valid(pctl, pin, func)) {
+-			dev_err(pctl->dev, "invalid function.\n");
++			dev_err(pctl->dev, "invalid function %d on pin %d .\n",
++				func, pin);
+ 			err = -EINVAL;
+ 			goto exit;
+ 		}
+-- 
+2.18.0
+

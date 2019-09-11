@@ -412,7 +412,8 @@ drivers () {
 }
 
 soc () {
-	dir 'soc/ti/am335x'
+	dir 'soc/stm32mp1'
+	return 0
 
 	dir 'soc/ti/blue'
 	dir 'soc/ti/abbbi'
@@ -487,7 +488,7 @@ beaglebone () {
 # backports
 #reverts
 # drivers
-# soc
+soc
 
 packaging () {
 	echo "dir: packaging"

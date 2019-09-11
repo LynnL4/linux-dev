@@ -1,0 +1,82 @@
+From 99e98462c11e25715870ddcac30a25d72d76da1e Mon Sep 17 00:00:00 2001
+From: turmary <turmary@126.com>
+Date: Thu, 29 Aug 2019 14:59:51 +0800
+Subject: [PATCH 9/14] Add: USB OTG with FS PHY OK, OTG_VBUS pin should be used
+
+---
+ arch/arm/boot/dts/stm32mp157a-dk1.dts |  5 ++++-
+ drivers/usb/dwc2/core.h               |  9 +++++++++
+ drivers/usb/dwc2/platform.c           | 21 +++++++++++++++++++++
+ 3 files changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/boot/dts/stm32mp157a-dk1.dts b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+index e6e4777e5fc9..36984eb6b0bd 100644
+--- a/arch/arm/boot/dts/stm32mp157a-dk1.dts
++++ b/arch/arm/boot/dts/stm32mp157a-dk1.dts
+@@ -751,7 +751,10 @@
+ 	pinctrl-0 = <&usbotg_hs_pins_a &usbotg_fs_dp_dm_pins_a>;          /* configure OTG ID and full-speed data pins */
+ 	vbus-supply = <&vbus_otg>;                                        /* voltage regulator to supply Vbus */
+ 	dr_mode = "peripheral";
+-	force-b-session-valid;
++	/*
++	 * don't use with FS PHY
++	 * force-b-session-valid;
++	 */
+ 	/*
+ 	phys = <&usbphyc_port1 0>;
+ 	phy-names = "usb2-phy";
+diff --git a/drivers/usb/dwc2/core.h b/drivers/usb/dwc2/core.h
+index 3d8fa5810447..20e93cf0f6f6 100644
+--- a/drivers/usb/dwc2/core.h
++++ b/drivers/usb/dwc2/core.h
+@@ -38,6 +38,15 @@
+ #ifndef __DWC2_CORE_H__
+ #define __DWC2_CORE_H__
+ 
++
++//#define DEBUG	1
++
++#ifdef DEBUG
++#undef pr_fmt
++#define pr_fmt(fmt)     KBUILD_MODNAME ": %s:%d: " fmt, __func__, __LINE__
++#endif
++
++
+ #include <linux/phy/phy.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/usb/gadget.h>
+diff --git a/drivers/usb/dwc2/platform.c b/drivers/usb/dwc2/platform.c
+index 7e6960c3d321..5277e77911af 100644
+--- a/drivers/usb/dwc2/platform.c
++++ b/drivers/usb/dwc2/platform.c
+@@ -454,6 +454,27 @@ static int dwc2_driver_probe(struct platform_device *dev)
+ 	if (retval)
+ 		goto error;
+ 
++	/*
++	 * Connect FS PHY transceiver to prevent 'HANG! Soft Reset timeout'
++	 */
++	if (!hsotg->phy) {
++		u32 v;
++
++		v = dwc2_readl(hsotg, GGPIO);
++		if (!(v & GGPIO_STM32_OTG_GCCFG_PWRDWN)) {
++			/*
++			 * STM32 uses the GGPIO register as general
++			 * core configuration register.
++			 */
++			v |= GGPIO_STM32_OTG_GCCFG_PWRDWN;
++			dwc2_writel(hsotg, v, GGPIO);
++		}
++
++		v = dwc2_readl(hsotg, GUSBCFG);
++		v |= GUSBCFG_PHYSEL;
++		dwc2_writel(hsotg, v, GUSBCFG);
++	}
++
+ 	/*
+ 	 * Reset before dwc2_get_hwparams() then it could get power-on real
+ 	 * reset value form registers.
+-- 
+2.18.0
+
