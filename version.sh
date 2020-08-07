@@ -48,7 +48,7 @@ BUILD=${build_prefix}1
 #git branch
 BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
 
-DISTRO=
+DISTRO=stable
 DEBARCH=armhf
 
 stm32mp1_git_old_release="be53d23e68c29900da6b6ce486b5ab8507de94b1"
